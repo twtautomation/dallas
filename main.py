@@ -60,11 +60,9 @@ app = Flask(__name__)
 def index():
     return "🟢 Twitter bot is running."
 
-# Background thread
+# Background thread to tweet
 def start_bot():
     print("🚀 Starting tweet loop...")
     tweet_loop()
 
-if __name__ == '__main__':
-    threading.Thread(target=start_bot).start()
-    app.run(host='0.0.0.0', port=8080)
+if __name__ == '
