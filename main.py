@@ -65,4 +65,4 @@ def start_bot():
     print("🚀 Starting tweet loop...")
     tweet_loop()
 
-if __name__ == '
+if __name__ == '__main__':
