@@ -1,27 +1,50 @@
-import tweepy
 import os
 import csv
 import time
+import tweepy
 from dotenv import load_dotenv
+from flask import Flask
+from threading import Thread
 
+# Load environment variables from .env or Render environment
 load_dotenv()
 
-API_KEY = os.getenv(ATGU86POelB8h7huUkqC0d8Sy)
-API_SECRET = os.getenv(jmCm1dsNEVL0917CDEBrhYul93tJCohefONwqhtcTc5R9G2nL1)
-ACCESS_TOKEN = os.getenv(1950301888013819905-O2qkqjyp9WZt2yK08TpEHLxdYtNBx6)
-ACCESS_SECRET = os.getenv(U378Mt757NjO4ds4rMDwwlDVRSgyQMJOZjbOTMrv5BfAL)
+# Twitter API keys
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+ACCESS_SECRET = os.getenv("ACCESS_SECRET")
 
+# Authenticate with Twitter
 auth = tweepy.OAuth1UserHandler(API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_SECRET)
 api = tweepy.API(auth)
 
-with open(DALLAS.csv, newline='', encoding='utf-8') as csvfile:
+# Start a simple Flask server to keep the app awake
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "I'm alive and tweeting!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+keep_alive()
+
+# Read tweets from CSV
+with open("tweets_with_random_images.csv", newline='', encoding='utf-8') as csvfile:
     reader = csv.reader(csvfile)
     tweets = list(reader)
 
+# Loop through all tweets forever
 while True:
     for tweet_row in tweets:
-        if not tweet_row:
-            continue
+        if not tweet_row or not tweet_row[0].strip():
+            continue  # Skip empty rows
 
         text = tweet_row[0].strip()
         image_file = tweet_row[1].strip() if len(tweet_row) > 1 else None
@@ -37,4 +60,5 @@ while True:
         except Exception as e:
             print(f"❌ Error tweeting: {e}")
 
-        time.sleep(22 * 60)  # Wait 29 minutes before the next tweet
+        # Wait 22 minutes before next tweet
+        time.sleep(22 * 60)
