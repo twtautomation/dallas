@@ -36,7 +36,7 @@ def keep_alive():
 keep_alive()
 
 # Read tweets from CSV
-with open("tweets_with_random_images.csv", newline='', encoding='utf-8') as csvfile:
+with open("DALLAS.csv", newline='', encoding='utf-8') as csvfile:
     reader = csv.reader(csvfile)
     tweets = list(reader)
 
