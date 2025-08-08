@@ -51,7 +51,7 @@ def tweet_loop():
             except Exception as e:
                 print(f"❌ Error tweeting: {e}")
 
-            time.sleep(2 * 60)  # Wait 2 minutes before the next tweet
+            time.sleep(2 * 60)  # Wait 2 minutes between tweets
 
 # Flask app just to stay alive
 app = Flask(__name__)
@@ -60,9 +60,12 @@ app = Flask(__name__)
 def index():
     return "🟢 Twitter bot is running."
 
-# Background thread to tweet
+# Background thread
 def start_bot():
     print("🚀 Starting tweet loop...")
     tweet_loop()
 
+# 👇 THIS is the part that was broken before
 if __name__ == '__main__':
+    threading.Thread(target=start_bot).start()
+    app.run(host='0.0.0.0', port=8080)
