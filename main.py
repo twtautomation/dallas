@@ -32,6 +32,7 @@ def tweet_loop():
                 continue
             text = row[0]
             image_file = row[1] if len(row) > 1 else ""
+            print(f"🌀 Attempting to tweet: {text} with image: {image_file}")
 
             try:
                 if image_file:
@@ -51,7 +52,7 @@ def tweet_loop():
             except Exception as e:
                 print(f"❌ Error tweeting: {e}")
 
-            time.sleep(2 * 60)  # Wait 2 minutes between tweets
+            time.sleep(2 * 60)  # Wait 2 minutes before the next tweet
 
 # Flask app just to stay alive
 app = Flask(__name__)
@@ -60,12 +61,8 @@ app = Flask(__name__)
 def index():
     return "🟢 Twitter bot is running."
 
-# Background thread
-def start_bot():
-    print("🚀 Starting tweet loop...")
-    tweet_loop()
+# Start thread immediately
+threading.Thread(target=tweet_loop).start()
 
-# 👇 THIS is the part that was broken before
-if __name__ == '__main__':
-    threading.Thread(target=start_bot).start()
-    app.run(host='0.0.0.0', port=8080)
+# Start server
+app.run(host='0.0.0.0', port=8080)
