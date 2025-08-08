@@ -6,63 +6,49 @@ import time
 import tweepy
 from dotenv import load_dotenv
 
+# Load API keys from .env
 load_dotenv()
 
-# Twitter API keys from .env
 API_KEY = os.getenv("API_KEY")
 API_SECRET = os.getenv("API_SECRET")
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 ACCESS_SECRET = os.getenv("ACCESS_SECRET")
-BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 
-# Auth
+# Authenticate with Twitter
 auth = tweepy.OAuth1UserHandler(API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_SECRET)
 api = tweepy.API(auth)
 
-# CSV and image folder settings
+# CSV setup
 CSV_FILE = "DALLAS.csv"
-IMAGE_FOLDER = "."
 
+# Tweet loop
 def tweet_loop():
     print(f"📄 Reading tweets from: {CSV_FILE}")
-    with open(CSV_FILE, newline='', encoding='utf-8') as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            if not row:
-                continue
-            text = row[0]
-            image_file = row[1] if len(row) > 1 else ""
-            print(f"🌀 Attempting to tweet: {text} with image: {image_file}")
-
-            try:
-                if image_file:
-                    image_path = os.path.join(IMAGE_FOLDER, image_file)
-                    if os.path.exists(image_path):
-                        media = api.media_upload(image_path)
-                        api.update_status(status=text, media_ids=[media.media_id])
-                        print(f"✅ Tweeted with image: {text}")
-                    else:
-                        print(f"⚠️ Image not found: {image_path}")
-                        api.update_status(status=text)
-                        print(f"✅ Tweeted (text only fallback): {text}")
-                else:
+    try:
+        with open(CSV_FILE, newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                if not row or not row[0].strip():
+                    continue
+                text = row[0]
+                try:
                     api.update_status(status=text)
-                    print(f"✅ Tweeted (text only): {text}")
+                    print(f"✅ Tweeted: {text}")
+                except Exception as e:
+                    print(f"❌ Error tweeting: {e}")
+                time.sleep(21 * 60)  # 21 minutes
+    except FileNotFoundError:
+        print(f"❌ CSV file '{CSV_FILE}' not found!")
 
-            except Exception as e:
-                print(f"❌ Error tweeting: {e}")
-
-            time.sleep(2 * 60)  # Wait 2 minutes before the next tweet
-
-# Flask app just to stay alive
+# Flask app for keep-alive
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return "🟢 Twitter bot is running."
+    return "🟢 Bot is running (text-only every 21 min)"
 
-# Start thread immediately
+# Start tweet loop immediately
 threading.Thread(target=tweet_loop).start()
 
-# Start server
+# Start Flask server (for UptimeRobot)
 app.run(host='0.0.0.0', port=8080)
